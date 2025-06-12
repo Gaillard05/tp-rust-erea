@@ -25,15 +25,17 @@ impl Map {
     }
 
     pub fn print(&self) {
+        println!("Legend: ## = Wall, . = Empty, M = Mineral, E = Energy, S = lieu intérêt scientifique, ## = Obstacle");
         println!("Map size: {}x{}", self.width, self.height);
         for row in &self.grid {
             for cell in row {
                 let symbol = match cell {
-                    Cell::Empty => '.',
-                    Cell::Obstacle => '#',
-                    Cell::Energy => '⚡',
-                    Cell::Mineral => '⛏',
-                    Cell::Science => '🔬',
+                    Cell::Wall => "##", 
+                    Cell::Empty => ". ",
+                    Cell::Energy => "E ",
+                    Cell::Mineral => "M ",
+                    Cell::Science => "S ",
+                    Cell::Obstacle => "##",
                 };
                 print!("{symbol} ");
             }

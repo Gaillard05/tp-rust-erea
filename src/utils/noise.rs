@@ -6,7 +6,10 @@ pub fn generate_noise(width: usize, height: usize, send: u32) -> Vec<Vec<Cell>> 
     let mut grid = vec![vec![Cell::Empty; width]; height];
 
     for y in 0..height {
-        for x in 0..width {
+        for x in 0..width {if y == 0 || y == height -1 || x == 0 || x == width - 1 {
+                grid[y][x] = Cell::Wall;
+                continue;
+            }
             let noise_val = perlin.get([x as f64 / 10.0, y as f64 / 10.0, send as f64]);
             grid[y][x] = match noise_val {
                 n if n < -0.3 => Cell::Obstacle,
