@@ -1,9 +1,12 @@
 use super::cell::Cell;
 use crate::utils::noise::generate_noise;
+use crate::robot::robot::Robot;
+use crate::station::station::Station;
+use colored::*; 
 
 pub struct Map {
-    width: usize,
-    height: usize,
+    pub width: usize,  
+    pub height: usize,  
     pub grid: Vec<Vec<Cell>>,
 }
 
@@ -24,22 +27,27 @@ impl Map {
         Self {width, height, grid}
     }
 
-    pub fn print(&self) {
-        println!("Legend: ## = Wall, . = Empty, M = Mineral, E = Energy, S = lieu intérêt scientifique, ## = Obstacle");
+    pub fn print(&self, robot: &Robot, station: &Station) {
+        println!("Legend: @ = Station, R = Robot, ## = Wall, . = Empty, M = Mineral, E = Energy, S = Science, ## = Obstacle");
         println!("Map size: {}x{}", self.width, self.height);
-        for row in &self.grid {
-            for cell in row {
-                let symbol = match cell {
-                    Cell::Wall => "##", 
-                    Cell::Empty => ". ",
-                    Cell::Energy => "E ",
-                    Cell::Mineral => "M ",
-                    Cell::Science => "S ",
-                    Cell::Obstacle => "##",
-                };
-                print!("{symbol} ");
+        
+        for (y, row) in self.grid.iter().enumerate() {
+            for (x, cell) in row.iter().enumerate() {
+                if x == robot.x && y == robot.y {
+                    print!("{}", "R ".green().bold());
+                } else if x == station.x && y == station.y {
+                    print!("{}", "@ ".yellow().bold()); // Station en jaune
+                } else {
+                    let symbol = match cell {
+                        Cell::Wall | Cell::Obstacle => "##",
+                        Cell::Empty => ". ",
+                        Cell::Mineral => "M ",
+                        Cell::Energy => "E ",
+                        Cell::Science => "S ",
+                    };
+                    print!("{}", symbol);
+                }
             }
-
             println!();
         }
     }
