@@ -1,12 +1,13 @@
-use noise::{NoiseFn, Perlin};
 use crate::map::cell::Cell;
+use noise::{NoiseFn, Perlin};
 
 pub fn generate_noise(width: usize, height: usize, send: u32) -> Vec<Vec<Cell>> {
     let perlin = Perlin::default();
     let mut grid = vec![vec![Cell::Empty; width]; height];
 
     for y in 0..height {
-        for x in 0..width {if y == 0 || y == height -1 || x == 0 || x == width - 1 {
+        for x in 0..width {
+            if y == 0 || y == height - 1 || x == 0 || x == width - 1 {
                 grid[y][x] = Cell::Wall;
                 continue;
             }

@@ -1,12 +1,15 @@
+mod config;
 mod map;
 mod utils;
-mod config;
 
-use map::map::Map;
-use config::Config;
+use crate::map::map::Map;
 
 fn main() {
-    let config = Config::default();
-    let map = Map::new(config.width, config.heigth, config.seed);
+    let width = 20;
+    let height = 20;
+    let seed = 42;
+
+    let map = Map::new(width, height, seed);
+
     map.print();
 }
