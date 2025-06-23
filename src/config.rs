@@ -7,7 +7,7 @@ pub struct Config {
 impl Default for Config {
     fn default() -> Self {
         Self {
-            width: 30,
+            width: 50,
             heigth: 15,
             seed: 42,
         }

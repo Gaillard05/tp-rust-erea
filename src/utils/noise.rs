@@ -15,7 +15,7 @@ pub fn generate_noise(width: usize, height: usize, send: u32) -> Vec<Vec<Cell>> 
                 n if n < -0.3 => Cell::Obstacle,
                 n if n < 0.0 => Cell::Energy,
                 n if n < 0.2 => Cell::Mineral,
-                n if n < 0.4 => Cell::Science,
+                n if n < 0.21 => Cell::Science,
                 _ => Cell::Empty,
             };
         }
