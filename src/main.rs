@@ -4,8 +4,8 @@ mod robot;
 mod station;
 mod utils;
 
-use crate::map::cell::Cell;
 use crate::map::map::Map;
+use crate::{map::cell::Cell, robot::robot::Robot};
 
 use crossterm::{
     event::{self, DisableMouseCapture, EnableMouseCapture, Event, KeyCode},
@@ -20,6 +20,7 @@ use ratatui::{
     widgets::{Block, Borders, Paragraph},
 };
 use std::{io, time::Duration};
+use text_io::read;
 
 fn main() -> Result<(), io::Error> {
     let width = 20;
