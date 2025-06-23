@@ -39,11 +39,11 @@ impl Map {
                     print!("{}", "@ ".yellow().bold()); // Station en jaune
                 } else {
                     let symbol = match cell {
-                        Cell::Wall | Cell::Obstacle => "##",
-                        Cell::Empty => ". ",
-                        Cell::Mineral => "M ",
-                        Cell::Energy => "E ",
-                        Cell::Science => "S ",
+                        Cell::Wall | Cell::Obstacle => "██".bright_black(),
+                        Cell::Empty => "  ".white(),
+                        Cell::Mineral => "💎".blue().bold(),
+                        Cell::Energy => "⚡".yellow().bold(),
+                        Cell::Science => "🧪".purple().bold(),
                     };
                     print!("{}", symbol);
                 }
@@ -52,19 +52,4 @@ impl Map {
         }
     }
 
-    // pub fn collect(&mut self, x: usize, y: usize) -> Option<Cell> {
-    //     if x >= self.width || y >= self.height {
-    //         return None;
-    //     }
-
-    //     let cell = &mut self.grid[y][x];
-    //     match cell {
-    //         Cell::Energy | Cell::Mineral => {
-    //             let ressource = cell.clone();
-    //             *cell = Cell::Empty;
-    //             Some(ressource)
-    //         }
-    //         _ => None,
-    //     }
-    // }
 }

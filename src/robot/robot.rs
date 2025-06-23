@@ -1,12 +1,7 @@
-use crossterm::{
-    event::{self, Event, KeyCode, KeyEventKind},
-    terminal::{enable_raw_mode, disable_raw_mode},
-};
 use std::collections::HashMap;
 use crate::map::map::Map; 
 use crate::map::cell::Cell;
-
-
+use crate::station::station::Station;
 
 #[derive(Debug, Eq, PartialEq, Hash, Clone)]
 pub enum ResourceType {
@@ -42,53 +37,24 @@ impl Robot {
             None
         }
     }
-    
-    pub fn move_robot(&mut self, map: &Map) -> std::io::Result<()> {
-        enable_raw_mode()?;
-    
-        println!("Déplace le robot (flèches, Échap pour quitter) : ");
-    
-        loop {
-            if let Event::Key(key_event) = event::read()? {
-                // On agit uniquement sur KeyEventKind::Press pour éviter les doubles déplacements
-                if key_event.kind == KeyEventKind::Press {
-                    match key_event.code {
-                        KeyCode::Up => {
-                            self.try_move(0, -1, map);
-                            break;
-                        }
-                        KeyCode::Down => {
-                            self.try_move(0, 1, map);
-                            break;
-                        }
-                        KeyCode::Left => {
-                            self.try_move(-1, 0, map);
-                            break;
-                        }
-                        KeyCode::Right => {
-                            self.try_move(1, 0, map);
-                            break;
-                        }
-                        KeyCode::Esc => {
-                            println!("Arrêt du programme.");
-                            disable_raw_mode()?;
-                            std::process::exit(0);
-                        }
-                        _ => {
-                            println!("Touche non reconnue. Utilise les flèches ou Échap.");
-                            break;
-                        }
-                    }
+
+    pub fn unload_resources(&mut self, station: &mut Station) {
+        if self.x == station.x && self.y == station.y {
+            if self.inventory.is_empty() {
+                println!("Aucune ressource à décharger !");
+            } else {
+                for (res, qty) in self.inventory.drain() {
+                    *station.inventory.entry(res).or_insert(0) += qty;
                 }
+                println!("Ressources déposées à la station !");
             }
+        } else {
+            println!("Le robot doit être sur la station pour décharger.");
         }
-    
-        disable_raw_mode()?; 
-        Ok(())
     }
     
     // Fonction helper pour tenter un déplacement
-    fn try_move(&mut self, dx: isize, dy: isize, map: &Map) {
+    pub fn try_move(&mut self, dx: isize, dy: isize, map: &Map) {
         let new_x = self.x as isize + dx; 
         let new_y = self.y as isize + dy; 
     
