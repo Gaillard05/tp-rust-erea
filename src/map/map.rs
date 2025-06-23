@@ -1,9 +1,12 @@
 use super::cell::Cell;
+use crate::robot::robot::Robot;
+use crate::station::station::Station;
 use crate::utils::noise::generate_noise;
+use colored::*;
 
 pub struct Map {
-    width: usize,
-    height: usize,
+    pub width: usize,
+    pub height: usize,
     pub grid: Vec<Vec<Cell>>,
 }
 
@@ -45,7 +48,6 @@ impl Map {
                 };
                 print!("{symbol} ");
             }
-
             println!();
         }
     }
