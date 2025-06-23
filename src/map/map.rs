@@ -49,7 +49,25 @@ impl Map {
             println!();
         }
     }
+    pub fn reveal(&self, x: usize, y: usize, radius: usize) -> Vec<Vec<crate::map::cell::Cell>> {
+        let mut vision = Vec::new();
 
+        let min_x = x.saturating_sub(radius);
+        let max_x = usize::min(x + radius, self.width - 1);
+
+        let min_y = y.saturating_sub(radius);
+        let max_y = usize::min(y + radius, self.height - 1);
+
+        for j in min_y..=max_y {
+            let mut row = Vec::new();
+            for i in min_x..=max_x {
+                row.push(self.grid[j][i].clone());
+            }
+            vision.push(row);
+        }
+
+        vision
+    }
     // pub fn collect(&mut self, x: usize, y: usize) -> Option<Cell> {
     //     if x >= self.width || y >= self.height {
     //         return None;
