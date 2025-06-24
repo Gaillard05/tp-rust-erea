@@ -31,7 +31,7 @@ impl Map {
     }
   }
 
-  pub fn print(&self, robot: &Robot, station: &Station) {
+  pub fn print(&self, robot: &Robot, station: &Station, resources_revealed: bool) {
     println!("Map size: {}x{}", self.width, self.height);
 
     for (y, row) in self.grid.iter().enumerate() {
@@ -39,14 +39,26 @@ impl Map {
         if x == robot.x && y == robot.y {
           print!("{}", "🤖".green().bold());
         } else if x == station.x && y == station.y {
-          print!("{}", "🏭".yellow().bold()); // Station en jaune
+          print!("{}", "🏭".yellow().bold());
         } else {
           let symbol = match cell {
             Cell::Wall | Cell::Obstacle => "██".bright_black(),
             Cell::Empty => "  ".white(),
-            Cell::Mineral => "💎".blue().bold(),
-            Cell::Energy => "⚡".yellow().bold(),
             Cell::Science => "🧪".purple().bold(),
+            Cell::Mineral => {
+              if resources_revealed {
+                "💎".blue().bold()
+              } else {
+                "❓".red().bold()
+              }
+            }
+            Cell::Energy => {
+              if resources_revealed {
+                "⚡".yellow().bold()
+              } else {
+                "❓".red().bold()
+              }
+            }
           };
           print!("{}", symbol);
         }

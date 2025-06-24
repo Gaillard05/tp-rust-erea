@@ -11,7 +11,7 @@ use crossterm::{
   terminal::{disable_raw_mode, enable_raw_mode},
 };
 use map::map::Map;
-use robot::robot::{ResourceType, Robot};
+use robot::robot::{Robot};
 use std::collections::HashMap;
 use std::io::Write;
 use utils::display::{print_commands_and_indicators, print_inventories};
@@ -31,26 +31,19 @@ fn main() -> std::io::Result<()> {
     inventory: HashMap::new(),
   };
   let mut last_collect_message: Option<String> = None;
+  let mut resources_revealed = false;
 
   loop {
     disable_raw_mode().ok(); // Désactive pour éviter de décaler sur mac
 
     clearscreen::clear().unwrap();
-    map.print(&robot, &station);
+    map.print(&robot, &station, resources_revealed);
 
     print_commands_and_indicators();
     print_inventories(&station, &robot);
 
     if let Some(msg) = &last_collect_message {
       println!("{msg}");
-    }
-    for (res, qty) in &robot.inventory {
-      let icon = match res {
-        ResourceType::Mineral => "💎",
-        ResourceType::Energy => "⚡",
-        ResourceType::Science => "🧪",
-      };
-      println!("{} : {}", icon, qty);
     }
 
     enable_raw_mode()?; // Active pour permettre utiliser les touches sans entrée
@@ -64,7 +57,10 @@ fn main() -> std::io::Result<()> {
           KeyCode::Right => robot.try_move(1, 0, &map),
           KeyCode::Char('u' | 'U') if robot.x == station.x && robot.y == station.y => {
             println!("Inventaire robot: {:?}", robot.inventory);
-            robot.unload_resources(&mut station);
+            let science_deposited = robot.unload_resources(&mut station);
+            if science_deposited {
+              resources_revealed = true;
+            }
             println!("Inventaire station: {:?}", station.inventory);
             std::io::stdout().flush()?;
           }
@@ -78,7 +74,6 @@ fn main() -> std::io::Result<()> {
       }
     }
 
-    last_collect_message = robot.collect_resource(&mut map);
-	
+    last_collect_message = robot.collect_resource(&mut map, resources_revealed);
   }
 }

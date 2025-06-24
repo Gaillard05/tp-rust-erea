@@ -23,44 +23,58 @@ impl Robot {
     self.inventory.values().sum::<u32>() as usize
   }
 
-  pub fn collect_resource(&mut self, map: &mut Map) -> Option<String> {
-    let cell = &mut map.grid[self.y][self.x];
-    let resource = match cell {
-      Cell::Mineral => Some(ResourceType::Mineral),
-      Cell::Energy => Some(ResourceType::Energy),
-      Cell::Science => Some(ResourceType::Science),
-      _ => None,
-    };
+  pub fn collect_resource(&mut self, map: &mut Map, resources_revealed: bool) -> Option<String> {
+    // Vérifie si l'inventaire est plein
+    if self.inventory_count() >= self.inventory_capacity {
+      return Some("Inventaire plein ! Retourne à la station.".to_string());
+    }
 
-    if let Some(res) = resource {
-      if self.inventory_count() < self.inventory_capacity {
-        let count = self.inventory.entry(res).or_insert(0);
+    let cell = &mut map.grid[self.y][self.x];
+    match cell {
+      Cell::Science => {
+        let count = self.inventory.entry(ResourceType::Science).or_insert(0);
         *count += 1;
         *cell = Cell::Empty;
-        Some(format!(
-          "Ressource collectée ! Inventaire : {:?}",
-          self.inventory
-        ))
-      } else {
-        Some("Inventaire plein ! Retourne à la station pour décharger.".to_string())
+        Some("Lieu scientifique collecté !".to_string())
       }
-    } else {
-      None
+      Cell::Mineral if resources_revealed => {
+        let count = self.inventory.entry(ResourceType::Mineral).or_insert(0);
+        *count += 1;
+        *cell = Cell::Empty;
+        Some("Minerai collecté !".to_string())
+      }
+      Cell::Energy if resources_revealed => {
+        let count = self.inventory.entry(ResourceType::Energy).or_insert(0);
+        *count += 1;
+        *cell = Cell::Empty;
+        Some("Énergie collectée !".to_string())
+      }
+      _ => None,
     }
   }
 
-  pub fn unload_resources(&mut self, station: &mut Station) {
+  pub fn unload_resources(&mut self, station: &mut Station) -> bool {
     if self.x == station.x && self.y == station.y {
       if self.inventory.is_empty() {
         println!("Aucune ressource à décharger !");
+        return false;
       } else {
+        let mut science_deposited = false;
         for (res, qty) in self.inventory.drain() {
+          if let ResourceType::Science = res {
+            science_deposited = true;
+          }
           *station.inventory.entry(res).or_insert(0) += qty;
         }
         println!("Ressources déposées à la station !");
+        if science_deposited {
+          println!("Lieu scientifique rapporté ! Toute la carte est révélée !");
+        }
+        return science_deposited;
       }
     } else {
       println!("Le robot doit être sur la station pour décharger.");
+      false
     }
   }
 
