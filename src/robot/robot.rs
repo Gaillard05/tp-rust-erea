@@ -83,21 +83,16 @@ impl Robot {
         }
 
         if science_deposited && !self.collected_science_positions.is_empty() {
-          println!("🧪 Analyse des échantillons en cours...");
-
           for &science_pos in &self.collected_science_positions {
             map.unlock_zone_with_science(science_pos);
           }
 
           self.collected_science_positions.clear();
         }
-
-        println!("Ressources déposées à la station !");
         map.next_turn();
         return science_deposited;
       }
     } else {
-      println!("Le robot doit être sur la station pour décharger.");
       false
     }
   }
@@ -127,10 +122,6 @@ impl Robot {
   }
 
   pub fn automate_robot(&mut self, map: &Map, station: &Station, resources_revealed: bool) {
-    println!("🔍 Robot automatique - Position: ({}, {})", self.x, self.y);
-    println!("🔍 Inventaire: {:?}", self.inventory);
-    println!("🔍 Resources revealed: {}", resources_revealed);
-
     if self.inventory.contains_key(&ResourceType::Science) {
       if let Some((dx, dy)) = Self::next_step_towards(
         self.x,
@@ -151,26 +142,20 @@ impl Robot {
       if let Some(science_pos) =
         Self::find_nearest(self.x, self.y, map, Cell::Science, resources_revealed)
       {
-        println!("🧪 Science trouvée en: {:?}", science_pos);
         Some(science_pos)
       } else if let Some(resource_pos) =
         Self::find_nearest_accessible_resource(self.x, self.y, map, resources_revealed)
       {
-        println!("Ressource accessible trouvée en: {:?}", resource_pos);
         Some(resource_pos)
       } else {
-        println!("Aucune cible trouvée - Exploration aléatoire");
         Self::find_exploration_target(self.x, self.y, map, resources_revealed)
       }
     };
-
-    println!("Cible sélectionnée: {:?}", target);
 
     if let Some((tx, ty)) = target {
       if let Some((dx, dy)) =
         Self::next_step_towards(self.x, self.y, tx, ty, map, resources_revealed)
       {
-        println!("➡️ Déplacement: ({}, {})", dx, dy);
         self.try_move(dx, dy, map, resources_revealed);
       }
     } else {
@@ -202,10 +187,7 @@ impl Robot {
       }
     }
 
-    println!(
-      "🗺️ Cible d'exploration: {:?} (distance: {})",
-      best_target, best_distance
-    );
+    println!(best_target, best_distance);
     best_target
   }
 
@@ -359,10 +341,8 @@ impl Robot {
           let (nx, ny) = path[1];
           let dx = (nx as isize) - (start_x as isize);
           let dy = (ny as isize) - (start_y as isize);
-          println!("Chemin trouvé, prochaine étape: ({}, {})", dx, dy);
           return Some((dx, dy));
         } else {
-          println!("Déjà sur la cible !");
           return None;
         }
       }

@@ -105,12 +105,6 @@ impl Map {
         zone.unlock();
         let (minerals, energies) = zone.resource_count;
 
-        println!("🌍 Région {} cartographiée !", zone.name);
-        println!(
-          "📊 Ressources détectées: {} minerais, {} énergies",
-          minerals, energies
-        );
-
         return Some(format!("Zone {} débloquée", zone.name));
       }
     }
