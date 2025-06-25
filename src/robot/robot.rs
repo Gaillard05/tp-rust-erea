@@ -42,14 +42,7 @@ impl Robot {
         let zone_name = map.get_zone_at(self.x, self.y).map(|z| z.name.clone());
         map.grid[self.y][self.x] = Cell::Empty;
 
-        if let Some(name) = zone_name {
-          return Some(format!(
-            "Échantillon de la région {} collecté ! Retourne au labo.",
-            name
-          ));
-        } else {
-          return Some("Lieu scientifique collecté ! Retourne au labo.".to_string());
-        }
+        return Some("Lieu scientifique collecté ! Retourne au labo.".to_string());
       }
       Cell::Mineral if resources_revealed || is_accessible => {
         let count = self.inventory.entry(ResourceType::Mineral).or_insert(0);
