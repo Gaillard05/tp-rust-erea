@@ -5,7 +5,6 @@ pub fn generate_noise(width: usize, height: usize, send: u32) -> Vec<Vec<Cell>> 
   let perlin = Perlin::default();
   let mut grid = vec![vec![Cell::Empty; width]; height];
 
-  // Génération de base avec bruit
   for y in 0..height {
     for x in 0..width {
       if y == 0 || y == height - 1 || x == 0 || x == width - 1 {
@@ -22,13 +21,7 @@ pub fn generate_noise(width: usize, height: usize, send: u32) -> Vec<Vec<Cell>> 
     }
   }
 
-  // Positions manuelles de la Science
-  let positions_science = vec![
-    (6, 5), // Sur un chemin accessible
-    (20, 6),
-    (26, 1),
-    (30, 13),
-  ];
+  let positions_science = vec![(6, 5), (3, 13), (20, 6), (26, 1), (30, 13)];
 
   for (x, y) in positions_science {
     if x < width && y < height && grid[y][x] == Cell::Empty {
