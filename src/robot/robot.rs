@@ -187,7 +187,6 @@ impl Robot {
       }
     }
 
-    println!(best_target, best_distance);
     best_target
   }
 
@@ -370,7 +369,6 @@ impl Robot {
             parent.insert((nx as usize, ny as usize), (x, y));
             queue.push_back((nx as usize, ny as usize));
           } else if nx as usize == target_x && ny as usize == target_y {
-            // 🆕 Si la cible elle-même est "bloquée" mais accessible, on peut quand même y aller
             if is_accessible || resources_revealed {
               visited[ny as usize][nx as usize] = true;
               parent.insert((nx as usize, ny as usize), (x, y));
