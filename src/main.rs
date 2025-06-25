@@ -35,8 +35,6 @@ fn main() -> std::io::Result<()> {
   
     first_robot.describe();
     robots.push(first_robot);
-
-    let mut second_robot_created = false;
   
 
   let mut map = Map::new(config.width, config.height, config.seed);
@@ -80,27 +78,16 @@ fn main() -> std::io::Result<()> {
                 resources_revealed = true;
               }
               println!("Inventaire station: {:?}", station.inventory);
-          
-              if !second_robot_created {
-                disable_raw_mode()?;
-                let robot_type = Robot::choice_type_robot(1);
-                disable_raw_mode()?;
-                
-                let second_robot = Robot {
-                  x: station.x + 1, 
-                  y: station.y,
-                  inventory: HashMap::new(),
-                  inventory_capacity: 5,
-                  robot_type,
-                };
-                second_robot.describe();
-                robots.push(second_robot);
-                second_robot_created = true;
-                _status_message = Some("Deuxième robot créé.".to_string());
-              } else {
-                _status_message = Some("🚫 Le deuxième robot a déjà été créé !".to_string());
-              } 
-    
+              
+              disable_raw_mode()?;
+              let new_type = Robot::choice_type_robot(active_robot_index);
+              enable_raw_mode()?;
+
+              robot.robot_type = new_type;
+              robot.describe();
+              _status_message = Some("Type du robot mis à jour après déchargement.".to_string());
+
+
             std::io::stdout().flush()?;
           }
 
