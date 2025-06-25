@@ -20,7 +20,7 @@ pub fn run_game_loop(mut state: GameState) -> Result<(), Box<dyn std::error::Err
         state.map.print(&state.robot, &state.station, state.resources_revealed);
         print_commands_and_indicators();
         print_inventories(&state.station, &state.robot);
-        print_map_stats(&state.map);
+        print_map_stats(&state.map, state.robot_speed_ms);
 
         println!("Automation: {}", if automation_enabled { "ON" } else { "OFF" });
 
@@ -55,10 +55,13 @@ pub fn run_game_loop(mut state: GameState) -> Result<(), Box<dyn std::error::Err
                             state.robot.x == state.station.x &&
                             state.robot.y == state.station.y
                         => {
-                            let _science_deposited = state.robot.unload_resources(
+                            let science_deposited = state.robot.unload_resources(
                                 &mut state.station,
                                 &mut state.map
                             );
+                            if science_deposited && state.robot_speed_ms > 30 {
+                                state.robot_speed_ms -= 50; // Réduit de 50ms à chaque science déposée
+                            }
                             io::stdout().flush()?;
                         }
                         KeyCode::Char('a' | 'A') => {
@@ -87,14 +90,18 @@ pub fn run_game_loop(mut state: GameState) -> Result<(), Box<dyn std::error::Err
                 state.robot.y == state.station.y &&
                 !state.robot.inventory.is_empty()
             {
-                let _science_deposited = state.robot.unload_resources(
+                let science_deposited = state.robot.unload_resources(
                     &mut state.station,
                     &mut state.map
                 );
+                // On augmente la vitesse seulement si on dépose de la science
+                if science_deposited && state.robot_speed_ms > 30 {
+                    state.robot_speed_ms -= 50; // Réduit de 50ms à chaque science déposée
+                }
             }
         }
 
-        std::thread::sleep(std::time::Duration::from_millis(50));
+        std::thread::sleep(std::time::Duration::from_millis(state.robot_speed_ms));
         state.last_collect_message = state.robot.collect_resource(
             &mut state.map,
             state.resources_revealed
