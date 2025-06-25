@@ -9,8 +9,7 @@ use tp_rust_EREEA::station::station::Station;
 #[test]
 fn test_game_state_initialization() {
     let config = Config::default();
-    let state = GameState::new(&config); // ✅
-
+    let state = GameState::new(&config);
 
     assert_eq!(state.resources_revealed, false);
     assert_eq!(state.robot.inventory_count(), 0);
@@ -28,15 +27,18 @@ fn test_collect_science() {
         y: 5,
         inventory: HashMap::new(),
         inventory_capacity: 5,
+        collected_science_positions: vec![],
     };
 
     let message = robot.collect_resource(&mut map, true);
+
+    // 🔧 Correction ici : adapter au vrai texte retourné par collect_resource
     assert_eq!(robot.inventory.get(&ResourceType::Science), Some(&1));
-    //assert!(message.unwrap().contains("Science"));
-    assert_eq!(message, Some("Lieu scientifique collecté !".to_string()));
-
+    assert_eq!(
+        message,
+        Some("Lieu scientifique collecté ! Retourne au labo.".to_string())
+    );
 }
-
 
 #[test]
 fn test_unload_station() {
@@ -46,14 +48,17 @@ fn test_unload_station() {
         inventory: HashMap::new(),
     };
 
+    let mut map = Map::new(10, 10, 42);
+
     let mut robot = Robot {
         x: 5,
         y: 5,
         inventory: [(ResourceType::Science, 2)].iter().cloned().collect(),
         inventory_capacity: 5,
+        collected_science_positions: vec![],
     };
 
-    let deposited = robot.unload_resources(&mut station);
+    let deposited = robot.unload_resources(&mut station, &mut map);
     assert!(deposited);
     assert_eq!(station.inventory.get(&ResourceType::Science), Some(&2));
     assert_eq!(robot.inventory_count(), 0);

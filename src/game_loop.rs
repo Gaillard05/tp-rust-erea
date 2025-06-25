@@ -9,6 +9,9 @@ use std::time::Duration;
 use crate::{ GameState };
 use crate::Robot;
 use crate::utils::display::{ print_commands_and_indicators, print_inventories };
+//use crate::map::map::Map;
+
+
 
 pub fn run_game_loop(mut state: GameState) -> Result<(), Box<dyn std::error::Error>> {
     enable_raw_mode()?;
@@ -56,9 +59,7 @@ pub fn run_game_loop(mut state: GameState) -> Result<(), Box<dyn std::error::Err
                             state.robot.x == state.station.x &&
                             state.robot.y == state.station.y
                         => {
-                            let science_deposited = state.robot.unload_resources(
-                                &mut state.station
-                            );
+                            let science_deposited = state.robot.unload_resources(&mut state.station, &mut state.map);
                             if science_deposited {
                                 state.resources_revealed = true;
                             }
@@ -87,7 +88,8 @@ pub fn run_game_loop(mut state: GameState) -> Result<(), Box<dyn std::error::Err
                 state.resources_revealed
             );
             if state.robot.x == state.station.x && state.robot.y == state.station.y {
-                let science_deposited = state.robot.unload_resources(&mut state.station);
+                let science_deposited = state.robot.unload_resources(&mut state.station, &mut state.map);
+
                 if science_deposited {
                     state.resources_revealed = true;
                 }

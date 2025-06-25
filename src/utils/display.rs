@@ -1,3 +1,5 @@
+//use crate::Map;
+use crate::map::map::Map;
 use crate::robot::robot::ResourceType;
 use crate::robot::robot::Robot;
 use crate::station::station::Station;
@@ -62,9 +64,39 @@ pub fn print_commands_and_indicators() {
   println!("╠══════════════════════════════╣ ╠══════════════════════════════╣");
   println!("║ ↑ ↓ ← →  : Déplacer robot    ║ ║ 💎 Mineral                   ║");
   println!("║ u        : Décharger         ║ ║ ⚡ Energy                    ║");
-  println!("║ ESC      : Quitter           ║ ║ 🧪 Science                   ║");
-  println!("╚══════════════════════════════╝ ║ 🤖 Robot                     ║");
-  println!("                                 ║ 🏭 Station                   ║");
+  println!("║ a        : Automatiser       ║ ║ 🧪 Science                   ║");
+  println!("║ ESC      : Quitter           ║ ║ 🤖 Robot                     ║");
+  println!("╚══════════════════════════════╝ ║ 🏭 Station                   ║");
   println!("                                 ╚══════════════════════════════╝");
   println!();
+}
+
+pub fn print_map_stats(map: &Map) {
+  println!(
+    "Map size: {}x{} | Tour: {}",
+    map.width, map.height, map.current_turn
+  );
+
+  let (unlocked, total, percentage) = map.zone_stats();
+  let (minerals, energies) = map.accessible_resources();
+
+  println!(
+    "🌍 Zones explorées: {}/{} ({:.0}%)",
+    unlocked, total, percentage
+  );
+  println!(
+    "💎 Minerais accessibles: {} | ⚡ Énergies accessibles: {}",
+    minerals, energies
+  );
+
+  let unlocked_zones: Vec<&str> = map
+    .zones
+    .iter()
+    .filter(|z| z.is_unlocked)
+    .map(|z| z.name.as_str())
+    .collect();
+
+  println!("📍 Régions cartographiées: {}", unlocked_zones.join(", "));
+
+  println!("");
 }

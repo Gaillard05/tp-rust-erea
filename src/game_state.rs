@@ -1,10 +1,9 @@
 use std::collections::HashMap;
 
-//use crate::{Robot, Map, Station};
-//use crate::Config;
 use crate::robot::robot::Robot;
 use crate::map::map::Map;
 use crate::station::station::Station;
+
 use crate::config::Config;
 
 
@@ -24,6 +23,7 @@ impl GameState {
                 y: 4,
                 inventory: HashMap::new(),
                 inventory_capacity: 5,
+                collected_science_positions: vec![],
             },
             map: Map::new(config.width, config.height, config.seed),
             station: Station {
