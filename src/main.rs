@@ -18,31 +18,48 @@ use utils::display::{print_commands_and_indicators, print_inventories};
 
 fn main() -> std::io::Result<()> {
   let config = Config::default();
-  let mut robot = Robot {
-    x: 8,
-    y: 4,
-    inventory: HashMap::new(),
-    inventory_capacity: 5,
-  };
+
+  let mut robots = Vec::new();
+  let mut active_robot_index = 0;
+
+ 
+    let robot_type = Robot::choice_type_robot(0);
+
+    let first_robot = Robot {
+      x: 8,
+      y: 4,
+      inventory: HashMap::new(),
+      inventory_capacity: 5,
+      robot_type,
+    };
+  
+    first_robot.describe();
+    robots.push(first_robot);
+
+    let mut second_robot_created = false;
+  
+
   let mut map = Map::new(config.width, config.height, config.seed);
   let mut station = Station {
     x: 9,
     y: 4,
     inventory: HashMap::new(),
   };
-  let mut last_collect_message: Option<String> = None;
+  let mut _last_collect_message: Option<String> = None;
   let mut resources_revealed = false;
+  let mut _status_message: Option<String> = None;
 
   loop {
     disable_raw_mode().ok(); // Désactive pour éviter de décaler sur mac
 
     clearscreen::clear().unwrap();
-    map.print(&robot, &station, resources_revealed);
+    let active_robot = &robots[active_robot_index];
+    map.print(&robots, &station, resources_revealed);
 
     print_commands_and_indicators();
-    print_inventories(&station, &robot);
+    print_inventories(&station, active_robot);
 
-    if let Some(msg) = &last_collect_message {
+    if let Some(msg) = &_status_message {
       println!("{msg}");
     }
 
@@ -50,6 +67,7 @@ fn main() -> std::io::Result<()> {
 
     if let Event::Key(key_event) = event::read()? {
       if key_event.kind == KeyEventKind::Press {
+        let robot = &mut robots[active_robot_index];
         match key_event.code {
           KeyCode::Up => robot.try_move(0, -1, &map),
           KeyCode::Down => robot.try_move(0, 1, &map),
@@ -58,12 +76,39 @@ fn main() -> std::io::Result<()> {
           KeyCode::Char('u' | 'U') if robot.x == station.x && robot.y == station.y => {
             println!("Inventaire robot: {:?}", robot.inventory);
             let science_deposited = robot.unload_resources(&mut station);
-            if science_deposited {
-              resources_revealed = true;
-            }
-            println!("Inventaire station: {:?}", station.inventory);
+              if science_deposited {
+                resources_revealed = true;
+              }
+              println!("Inventaire station: {:?}", station.inventory);
+          
+              if !second_robot_created {
+                disable_raw_mode()?;
+                let robot_type = Robot::choice_type_robot(1);
+                disable_raw_mode()?;
+                
+                let second_robot = Robot {
+                  x: station.x + 1, 
+                  y: station.y,
+                  inventory: HashMap::new(),
+                  inventory_capacity: 5,
+                  robot_type,
+                };
+                second_robot.describe();
+                robots.push(second_robot);
+                second_robot_created = true;
+                _status_message = Some("Deuxième robot créé.".to_string());
+              } else {
+                _status_message = Some("🚫 Le deuxième robot a déjà été créé !".to_string());
+              } 
+    
             std::io::stdout().flush()?;
           }
+
+          KeyCode::Tab => {
+            active_robot_index = (active_robot_index + 1) % robots.len();
+            _status_message = Some(format!("Changement vers robot #{}", active_robot_index + 1));
+          }
+
           KeyCode::Esc => {
             disable_raw_mode()?;
             println!("Arrêt du programme.");
@@ -74,6 +119,7 @@ fn main() -> std::io::Result<()> {
       }
     }
 
-    last_collect_message = robot.collect_resource(&mut map, resources_revealed);
+    let robot = &mut robots[active_robot_index];
+    _last_collect_message = robot.collect_resource(&mut map, resources_revealed);
   }
 }

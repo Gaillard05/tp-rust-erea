@@ -1,5 +1,5 @@
 use super::cell::Cell;
-use crate::robot::robot::Robot;
+use crate::robot::robot::{Robot, RobotTypes};
 use crate::station::station::Station;
 use crate::utils::noise::generate_noise;
 use colored::*;
@@ -31,13 +31,18 @@ impl Map {
     }
   }
 
-  pub fn print(&self, robot: &Robot, station: &Station, resources_revealed: bool) {
+  pub fn print(&self, robots: &[Robot], station: &Station, resources_revealed: bool) {
     println!("Map size: {}x{}", self.width, self.height);
 
     for (y, row) in self.grid.iter().enumerate() {
       for (x, cell) in row.iter().enumerate() {
-        if x == robot.x && y == robot.y {
-          print!("{}", "🤖".green().bold());
+        if let Some(robot) = robots.iter().find(|r| r.x == x && r.y == y)  {
+           let symbol = match robot.robot_type {
+                RobotTypes::Explorateur => "🤖".green().bold(),
+                RobotTypes::Collecteurs  => "🚜".yellow().bold(),
+           };
+
+           print!("{}", symbol);
         } else if x == station.x && y == station.y {
           print!("{}", "🏭".yellow().bold());
         } else {

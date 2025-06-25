@@ -10,15 +10,50 @@ pub enum ResourceType {
   Science,
 }
 
+#[derive(Debug, Clone, Copy)]
+pub enum RobotTypes {
+  Explorateur, 
+  Collecteurs
+}
+
 #[derive(Debug)]
 pub struct Robot {
   pub x: usize,
   pub y: usize,
   pub inventory: HashMap<ResourceType, u32>,
   pub inventory_capacity: usize,
+  pub robot_type: RobotTypes,
 }
 
 impl Robot {
+
+  pub fn describe(&self) {
+    println!("Ce robot est de type : {:?}", self.robot_type)
+  }
+
+  pub fn choice_type_robot(index: usize) -> RobotTypes {
+    use std::io::{self, Write};
+
+    loop {
+      println!("Choisissez le type pour le robot {} :", index + 1);
+      println!("1. Explorateur");
+      println!("2. Collecteurs");
+      print!("Votre choix (1-2) : ");
+
+      io::stdout().flush().unwrap();
+
+      let mut input = String::new();
+      io::stdin().read_line(&mut input).unwrap();
+      
+
+      match input.trim() {
+          "1" => return RobotTypes::Explorateur,
+          "2" => return RobotTypes::Collecteurs,
+          _=> println!("Choix invalide.Essayer encore."),
+      }
+    }
+  }
+
   pub fn inventory_count(&self) -> usize {
     self.inventory.values().sum::<u32>() as usize
   }
