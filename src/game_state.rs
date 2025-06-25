@@ -2,6 +2,8 @@ use std::collections::HashMap;
 
 use crate::{Robot, Map, Station};
 use crate::Config;
+use std::sync::mpsc::Sender;
+
 
 pub struct GameState {
     pub robot: Robot,
@@ -9,10 +11,11 @@ pub struct GameState {
     pub station: Station,
     pub last_collect_message: Option<String>,
     pub resources_revealed: bool,
+    pub sender_to_earth : Sender<String>,
 }
 
 impl GameState {
-    pub fn new(config: &Config) -> Self {
+    pub fn new(config: &Config, sender_to_earth : Sender<String>) -> Self {
         Self {
             robot: Robot {
                 x: 8,
