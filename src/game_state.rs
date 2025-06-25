@@ -30,7 +30,7 @@ impl GameState {
             },
             last_collect_message: None,
             resources_revealed: false,
-            robot_speed_ms: 200, // Vitesse initiale en ms
+            robot_speed_ms: 250, // Vitesse initiale en ms
         }
     }
 }

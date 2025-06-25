@@ -70,9 +70,11 @@ pub fn print_commands_and_indicators() {
   println!();
 }
 
-pub fn print_map_stats(map: &Map) {
+pub fn print_map_stats(map: &Map, robot_speed_ms: u64) {
+  let speed_sec = robot_speed_ms as f64 / 1000.0;
+  println!("🤖 Vitesse du robot: {:.2} s/tour", speed_sec);
   println!(
-    "Map size: {}x{} | Tour: {}",
+    "🗾 Map size: {}x{} | Tour: {}",
     map.width, map.height, map.current_turn
   );
 
