@@ -1,5 +1,5 @@
-use crate::robot::robot::ResourceType;
 use std::collections::HashMap;
+use crate::robot::robot::ResourceType;
 
 #[derive(Debug)]
 pub struct Station {
