@@ -10,6 +10,10 @@ use std::io::{ self, Write };
 use std::time::Duration;
 
 pub fn run_game_loop(mut state: GameState) -> Result<(), Box<dyn std::error::Error>> {
+    disable_raw_mode()?;
+    let robot_type = Robot::choice_type_robot();
+    state.robot.robot_type = robot_type;
+    state.robot.describe();
     enable_raw_mode()?;
     let mut automation_enabled = true;
 
@@ -17,7 +21,7 @@ pub fn run_game_loop(mut state: GameState) -> Result<(), Box<dyn std::error::Err
         disable_raw_mode().ok();
         clearscreen::clear()?;
 
-        state.map.print(&state.robot, &state.station, state.resources_revealed);
+        state.map.print(std::slice::from_ref(&state.robot), &state.station, state.resources_revealed);
         print_commands_and_indicators();
         print_inventories(&state.station, &state.robot);
         print_map_stats(&state.map);
@@ -59,6 +63,18 @@ pub fn run_game_loop(mut state: GameState) -> Result<(), Box<dyn std::error::Err
                                 &mut state.station,
                                 &mut state.map
                             );
+
+                             if _science_deposited {
+                                 
+                                disable_raw_mode()?;
+                                let new_type= Robot::choice_type_robot();
+                                enable_raw_mode()?;
+
+                               state.robot.robot_type = new_type;
+                               state.robot.describe();
+                               state.status_message =  Some("Type du robot mis à jour après déchargement.".to_string());
+
+                            }
                             io::stdout().flush()?;
                         }
                         KeyCode::Char('a' | 'A') => {

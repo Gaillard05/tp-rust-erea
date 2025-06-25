@@ -1,6 +1,6 @@
 use super::cell::Cell;
 use super::zone::Zone;
-use crate::robot::robot::Robot;
+use crate::robot::robot::{Robot, RobotTypes};
 use crate::station::station::Station;
 use crate::utils::noise::generate_noise;
 use colored::*;
@@ -144,11 +144,16 @@ impl Map {
     self.current_turn += 1;
   }
 
-  pub fn print(&self, robot: &Robot, station: &Station, resources_revealed: bool) {
+  pub fn print(&self, robots: &[Robot], station: &Station, resources_revealed: bool) {
     for (y, row) in self.grid.iter().enumerate() {
       for (x, cell) in row.iter().enumerate() {
-        if x == robot.x && y == robot.y {
-          print!("{}", "🤖".green().bold());
+       if let Some(robot) = robots.iter().find(|r| r.x == x && r.y == y)  {
+           let symbol = match robot.robot_type {
+                RobotTypes::Explorateur => "🤖".green().bold(),
+                RobotTypes::Collecteurs  => "🚜".yellow().bold(),
+           };
+
+           print!("{}", symbol);
         } else if x == station.x && y == station.y {
           print!("{}", "🏭".yellow().bold());
         } else {
