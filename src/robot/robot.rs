@@ -3,6 +3,12 @@ use crate::map::map::Map;
 use crate::station::station::Station;
 use std::collections::{HashMap, VecDeque};
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum RobotType {
+  Explorator,
+  Collector,
+}
+
 #[derive(Debug, Eq, PartialEq, Hash, Clone)]
 pub enum ResourceType {
   Mineral,
@@ -12,11 +18,13 @@ pub enum ResourceType {
 
 #[derive(Debug)]
 pub struct Robot {
+  pub robots: Vec<Robot>,
   pub x: usize,
   pub y: usize,
   pub inventory: HashMap<ResourceType, u32>,
   pub inventory_capacity: usize,
   pub collected_science_positions: Vec<(usize, usize)>,
+  pub robot_type: RobotType,
 }
 
 impl Robot {
@@ -93,11 +101,26 @@ impl Robot {
     }
   }
 
-  pub fn try_move(&mut self, dx: isize, dy: isize, map: &Map, resources_revealed: bool) {
+  pub fn try_move(
+    &mut self,
+    dx: isize,
+    dy: isize,
+    map: &Map,
+    resources_revealed: bool,
+    other_robots: &[(usize, usize)], // Positions des autres robots
+  ) {
     let new_x = (self.x as isize) + dx;
     let new_y = (self.y as isize) + dy;
 
     if new_x >= 0 && new_y >= 0 && (new_x as usize) < map.width && (new_y as usize) < map.height {
+      // Vérifie la collision avec les autres robots
+      if other_robots
+        .iter()
+        .any(|(x, y)| *x == new_x as usize && *y == new_y as usize)
+      {
+        return;
+      }
+
       let target_cell = map.grid[new_y as usize][new_x as usize];
       let is_accessible = map.is_resource_accessible(new_x as usize, new_y as usize);
 
@@ -117,45 +140,79 @@ impl Robot {
     }
   }
 
-  pub fn automate_robot(&mut self, map: &Map, station: &Station, resources_revealed: bool) {
-    if self.inventory.contains_key(&ResourceType::Science) {
-      if let Some((dx, dy)) = Self::next_step_towards(
-        self.x,
-        self.y,
-        station.x,
-        station.y,
-        map,
-        resources_revealed,
-      ) {
-        self.try_move(dx, dy, map, resources_revealed);
+  pub fn automate_robot(
+    &mut self,
+    map: &Map,
+    station: &Station,
+    resources_revealed: bool,
+    other_robots: &[(usize, usize)],
+  ) {
+    match self.robot_type {
+      RobotType::Explorator => {
+        // Si le robot a déjà de la science, il retourne à la station
+        if self.inventory.contains_key(&ResourceType::Science) {
+          if let Some((dx, dy)) = Self::next_step_towards(
+            self.x,
+            self.y,
+            station.x,
+            station.y,
+            map,
+            resources_revealed,
+          ) {
+            self.try_move(dx, dy, map, resources_revealed, other_robots);
+          }
+          return;
+        }
+        // Sinon, cherche la science la plus proche
+        if let Some((tx, ty)) =
+          Self::find_nearest(self.x, self.y, map, Cell::Science, resources_revealed)
+        {
+          if let Some((dx, dy)) =
+            Self::next_step_towards(self.x, self.y, tx, ty, map, resources_revealed)
+          {
+            self.try_move(dx, dy, map, resources_revealed, other_robots);
+          }
+        }
       }
-      return;
-    }
-
-    let target = if self.inventory_count() >= self.inventory_capacity {
-      Some((station.x, station.y))
-    } else {
-      if let Some(science_pos) =
-        Self::find_nearest(self.x, self.y, map, Cell::Science, resources_revealed)
-      {
-        Some(science_pos)
-      } else if let Some(resource_pos) =
-        Self::find_nearest_accessible_resource(self.x, self.y, map, resources_revealed)
-      {
-        Some(resource_pos)
-      } else {
-        Self::find_exploration_target(self.x, self.y, map, resources_revealed)
+      RobotType::Collector => {
+        // Si l'inventaire est plein, retourne à la station
+        if self.inventory_count() >= self.inventory_capacity {
+          if let Some((dx, dy)) = Self::next_step_towards(
+            self.x,
+            self.y,
+            station.x,
+            station.y,
+            map,
+            resources_revealed,
+          ) {
+            self.try_move(dx, dy, map, resources_revealed, other_robots);
+          }
+          return;
+        }
+        // Sinon, cherche le minerai ou l'énergie la plus proche
+        if let Some((tx, ty)) = Self::find_nearest_with_access_check(
+          self.x,
+          self.y,
+          map,
+          Cell::Mineral,
+          resources_revealed,
+        )
+        .or_else(|| {
+          Self::find_nearest_with_access_check(
+            self.x,
+            self.y,
+            map,
+            Cell::Energy,
+            resources_revealed,
+          )
+        }) {
+          if let Some((dx, dy)) =
+            Self::next_step_towards(self.x, self.y, tx, ty, map, resources_revealed)
+          {
+            self.try_move(dx, dy, map, resources_revealed, other_robots);
+          }
+        }
       }
-    };
-
-    if let Some((tx, ty)) = target {
-      if let Some((dx, dy)) =
-        Self::next_step_towards(self.x, self.y, tx, ty, map, resources_revealed)
-      {
-        self.try_move(dx, dy, map, resources_revealed);
-      }
-    } else {
-      println!("Aucune cible accessible - Robot en attente");
     }
   }
 
