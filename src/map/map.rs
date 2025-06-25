@@ -1,9 +1,9 @@
-use colored::*;
 use super::cell::Cell;
 use super::zone::Zone;
 use crate::robot::robot::Robot;
 use crate::station::station::Station;
 use crate::utils::noise::generate_noise;
+use colored::*;
 
 pub struct Map {
   pub width: usize,
@@ -177,6 +177,26 @@ impl Map {
         }
       }
       println!();
+    }
+  }
+  pub fn update_zone_resource_counts(&mut self) {
+    for zone in &mut self.zones {
+      let mut minerals = 0;
+      let mut energies = 0;
+
+      for y in zone.min_y..=zone.max_y {
+        for x in zone.min_x..=zone.max_x {
+          if y < self.height && x < self.width {
+            match self.grid[y][x] {
+              Cell::Mineral => minerals += 1,
+              Cell::Energy => energies += 1,
+              _ => {}
+            }
+          }
+        }
+      }
+
+      zone.resource_count = (minerals, energies);
     }
   }
 }
