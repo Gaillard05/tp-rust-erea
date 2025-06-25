@@ -67,3 +67,46 @@ impl Map {
     }
   }
 }
+
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+  use crate::map::cell::Cell;
+
+  #[test]
+  fn map_is_created_with_correct_dimensions() {
+    let width = 10;
+    let height = 8;
+    let seed = 42;
+
+    let map = Map::new(width, height, seed);
+
+    assert_eq!(map.width, width);
+    assert_eq!(map.height, height);
+    assert_eq!(map.grid.len(), height);
+    assert_eq!(map.grid[0].len(), width);
+  }
+
+  #[test]
+  fn map_borders_are_obstacles() {
+    let width = 6;
+    let height = 6;
+    let seed = 123;
+
+    let map = Map::new(width, height, seed);
+
+    // Vérifie les bords haut et bas
+    for x in 0..width {
+      assert_eq!(map.grid[0][x], Cell::Obstacle); // haut
+      assert_eq!(map.grid[height - 1][x], Cell::Obstacle); // bas
+    }
+
+    // Vérifie les bords gauche et droite
+    for y in 0..height {
+      assert_eq!(map.grid[y][0], Cell::Obstacle); // gauche
+      assert_eq!(map.grid[y][width - 1], Cell::Obstacle); // droite
+    }
+  }
+}
+

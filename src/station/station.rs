@@ -7,3 +7,4 @@ pub struct Station {
   pub y: usize,
   pub inventory: HashMap<ResourceType, u32>,
 }
+

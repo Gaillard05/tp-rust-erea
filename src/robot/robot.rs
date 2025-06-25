@@ -284,3 +284,40 @@ impl Robot {
         None
     }
 }
+
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::map::cell::Cell;
+    use crate::map::map::Map;
+
+    #[test]
+    fn robot_inventory_starts() {
+        let robot = Robot {
+            x: 0,
+            y: 0,
+            inventory: HashMap::new(),
+            inventory_capacity: 5,
+        };
+        assert_eq!(robot.inventory_count(), 0);
+    }
+
+    #[test]
+    fn robot_collects_science() {
+        let mut robot = Robot {
+            x: 0,
+            y: 0,
+            inventory: HashMap::new(),
+            inventory_capacity: 5,
+        };
+        let mut map = Map {
+            width: 1,
+            height: 1,
+            grid: vec![vec![Cell::Science]],
+        };
+        let msg = robot.collect_resource(&mut map, true);
+        assert_eq!(msg, Some("Lieu scientifique collecté !".to_string()));
+        assert_eq!(robot.inventory.get(&ResourceType::Science), Some(&1));
+    }
+}

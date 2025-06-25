@@ -1,7 +1,12 @@
 use std::collections::HashMap;
 
-use crate::{Robot, Map, Station};
-use crate::Config;
+//use crate::{Robot, Map, Station};
+//use crate::Config;
+use crate::robot::robot::Robot;
+use crate::map::map::Map;
+use crate::station::station::Station;
+use crate::config::Config;
+
 
 pub struct GameState {
     pub robot: Robot,

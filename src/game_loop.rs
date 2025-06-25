@@ -4,7 +4,7 @@ use crossterm::{
     terminal::{ enable_raw_mode, disable_raw_mode },
 };
 use std::io::{ self, Write };
-use std::thread;
+//use std::thread;
 use std::time::Duration;
 use crate::{ GameState };
 use crate::Robot;
