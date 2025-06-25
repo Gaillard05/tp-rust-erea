@@ -91,10 +91,13 @@ pub fn run_game_loop(mut state: GameState) -> Result<(), Box<dyn std::error::Err
                     &mut state.station,
                     &mut state.map
                 );
+                if state.robot_speed_ms > 30 {
+                    state.robot_speed_ms -= 50; // Réduit de 10ms à chaque science
+                }
             }
         }
 
-        std::thread::sleep(std::time::Duration::from_millis(50));
+        std::thread::sleep(std::time::Duration::from_millis(state.robot_speed_ms));
         state.last_collect_message = state.robot.collect_resource(
             &mut state.map,
             state.resources_revealed
