@@ -1,9 +1,9 @@
+use colored::*;
 use super::cell::Cell;
 use super::zone::Zone;
 use crate::robot::robot::Robot;
 use crate::station::station::Station;
 use crate::utils::noise::generate_noise;
-use colored::*;
 
 pub struct Map {
   pub width: usize,
@@ -103,8 +103,6 @@ impl Map {
     for zone in &mut self.zones {
       if zone.contains_point(x, y) && !zone.is_unlocked {
         zone.unlock();
-        let (minerals, energies) = zone.resource_count;
-
         return Some(format!("Zone {} débloquée", zone.name));
       }
     }
@@ -147,36 +145,6 @@ impl Map {
   }
 
   pub fn print(&self, robot: &Robot, station: &Station, resources_revealed: bool) {
-    println!(
-      "Map size: {}x{} | Tour: {}",
-      self.width, self.height, self.current_turn
-    );
-
-    let (unlocked, total, percentage) = self.zone_stats();
-    let (minerals, energies) = self.accessible_resources();
-
-    println!(
-      "🧪 Sciences analysées: {} | 🌍 Zones explorées: {}/{} ({:.0}%)",
-      unlocked, unlocked, total, percentage
-    );
-    println!(
-      "💎 Minerais accessibles: {} | ⚡ Énergies accessibles: {}",
-      minerals, energies
-    );
-
-    let unlocked_zones: Vec<&str> = self
-      .zones
-      .iter()
-      .filter(|z| z.is_unlocked)
-      .map(|z| z.name.as_str())
-      .collect();
-
-    if !unlocked_zones.is_empty() {
-      println!("📍 Régions cartographiées: {}", unlocked_zones.join(", "));
-    }
-
-    println!("");
-
     for (y, row) in self.grid.iter().enumerate() {
       for (x, cell) in row.iter().enumerate() {
         if x == robot.x && y == robot.y {
