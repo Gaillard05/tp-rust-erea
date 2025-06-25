@@ -32,7 +32,7 @@ impl Map {
   }
 
   pub fn print(&self, robot: &Robot, station: &Station, resources_revealed: bool) {
-    println!("Map size: {}x{}", self.width, self.height);
+   // println!("Map size: {}x{}", self.width, self.height);
 
     for (y, row) in self.grid.iter().enumerate() {
       for (x, cell) in row.iter().enumerate() {

@@ -9,6 +9,7 @@ pub struct GameState {
     pub station: Station,
     pub last_collect_message: Option<String>,
     pub resources_revealed: bool,
+    pub autonomous_mode: bool,
 }
 
 impl GameState {
@@ -28,6 +29,7 @@ impl GameState {
             },
             last_collect_message: None,
             resources_revealed: false,
+            autonomous_mode: false,
         }
     }
 }

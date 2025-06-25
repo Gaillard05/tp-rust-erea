@@ -2,6 +2,8 @@ use crate::map::cell::Cell;
 use crate::map::map::Map;
 use crate::station::station::Station;
 use std::collections::HashMap;
+use rand::seq::SliceRandom;
+use rand::thread_rng;
 
 #[derive(Debug, Eq, PartialEq, Hash, Clone)]
 pub enum ResourceType {
@@ -94,6 +96,34 @@ impl Robot {
       self.y = new_y as usize;
     } else {
       println!("Déplacement impossible !");
+    }
+  }
+  pub fn act_random(&mut self, map: &mut Map, station: &Station, resources_revealed: bool) {
+    if self.inventory.contains_key(&ResourceType::Science) {
+      // Revenir à la station pour décharger le Science
+      let dx = (station.x as isize - self.x as isize).signum();
+      let dy = (station.y as isize - self.y as isize).signum();
+      self.try_move(dx, dy, map);
+      return;
+    }
+
+    if self.inventory_count() >= self.inventory_capacity {
+      // Revenir à la station
+      let dx = (station.x as isize - self.x as isize).signum();
+      let dy = (station.y as isize - self.y as isize).signum();
+      self.try_move(dx, dy, map);
+    } else {
+      // Tente de collecter une ressource
+      if let Some(msg) = self.collect_resource(map, resources_revealed) {
+        println!("{}", msg);
+      } else {
+        // Sinon, exploration aléatoire
+        let mut rng = thread_rng();
+        let dirs = [(-1, 0), (1, 0), (0, -1), (0, 1)];
+        if let Some(&(dx, dy)) = dirs.choose(&mut rng) {
+          self.try_move(dx, dy, map);
+        }
+      }
     }
   }
 }
