@@ -1,8 +1,8 @@
 use std::collections::HashMap;
 
 use crate::Config;
-use crate::robot::robot::RobotType;
-use crate::{Map, Robot, Station};
+use crate::robot::robot::{Robot, RobotType};
+use crate::{Map, Station};
 
 pub struct GameState {
   pub robots: Vec<Robot>,
@@ -54,7 +54,7 @@ impl GameState {
       },
       last_collect_message: None,
       resources_revealed: false,
-      robot_speed_ms: 250,
+      robot_speed_ms: 251,
     }
   }
 }
