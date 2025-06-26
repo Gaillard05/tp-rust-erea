@@ -149,7 +149,7 @@ impl Map {
     for (y, row) in self.grid.iter().enumerate() {
       for (x, cell) in row.iter().enumerate() {
         // Vérifie si un robot est sur cette case
-        if let Some((index, robot)) = robots
+        if let Some((_index, robot)) = robots
           .iter()
           .enumerate()
           .find(|(_, r)| r.x == x && r.y == y)

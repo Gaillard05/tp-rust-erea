@@ -33,10 +33,6 @@ impl Robot {
   }
 
   pub fn collect_resource(&mut self, map: &mut Map, resources_revealed: bool) -> Option<String> {
-    if self.inventory_count() >= self.inventory_capacity {
-      return Some("Inventaire plein ! Retourne à la station.".to_string());
-    }
-
     let current_cell = map.grid[self.y][self.x];
     let is_accessible = map.is_resource_accessible(self.x, self.y);
 
@@ -57,7 +53,7 @@ impl Robot {
 
         map.update_zone_resource_counts();
 
-        Some("Minerai collecté !".to_string())
+        None
       }
       Cell::Energy if resources_revealed || is_accessible => {
         let count = self.inventory.entry(ResourceType::Energy).or_insert(0);
@@ -65,7 +61,7 @@ impl Robot {
         map.grid[self.y][self.x] = Cell::Empty;
         map.update_zone_resource_counts();
 
-        Some("Énergie collectée !".to_string())
+        None
       }
       _ => None,
     }
@@ -107,17 +103,22 @@ impl Robot {
     dy: isize,
     map: &Map,
     resources_revealed: bool,
-    other_robots: &[(usize, usize)], // Positions des autres robots
+    other_robots: &[(usize, usize)],
+    station: &Station, // Ajoute ce paramètre
   ) {
     let new_x = (self.x as isize) + dx;
     let new_y = (self.y as isize) + dy;
 
     if new_x >= 0 && new_y >= 0 && (new_x as usize) < map.width && (new_y as usize) < map.height {
       // Vérifie la collision avec les autres robots
-      if other_robots
-        .iter()
-        .any(|(x, y)| *x == new_x as usize && *y == new_y as usize)
+      let is_station = new_x as usize == station.x && new_y as usize == station.y;
+      if !is_station
+        && other_robots
+          .iter()
+          .any(|(x, y)| *x == new_x as usize && *y == new_y as usize)
       {
+        // On n'autorise le stacking que sur la station
+        println!("Déplacement impossible : un autre robot occupe déjà cette case !");
         return;
       }
 
@@ -159,7 +160,7 @@ impl Robot {
             map,
             resources_revealed,
           ) {
-            self.try_move(dx, dy, map, resources_revealed, other_robots);
+            self.try_move(dx, dy, map, resources_revealed, other_robots, station);
           }
           return;
         }
@@ -170,7 +171,7 @@ impl Robot {
           if let Some((dx, dy)) =
             Self::next_step_towards(self.x, self.y, tx, ty, map, resources_revealed)
           {
-            self.try_move(dx, dy, map, resources_revealed, other_robots);
+            self.try_move(dx, dy, map, resources_revealed, other_robots, station);
           }
         }
       }
@@ -185,7 +186,7 @@ impl Robot {
             map,
             resources_revealed,
           ) {
-            self.try_move(dx, dy, map, resources_revealed, other_robots);
+            self.try_move(dx, dy, map, resources_revealed, other_robots, station);
           }
           return;
         }
@@ -209,7 +210,7 @@ impl Robot {
           if let Some((dx, dy)) =
             Self::next_step_towards(self.x, self.y, tx, ty, map, resources_revealed)
           {
-            self.try_move(dx, dy, map, resources_revealed, other_robots);
+            self.try_move(dx, dy, map, resources_revealed, other_robots, station);
           }
         }
       }

@@ -20,6 +20,18 @@ impl GameState {
 
     let mut robots = Vec::new();
 
+    for _i in 0..num_explorators {
+      robots.push(Robot {
+        x: 7,
+        y: 4,
+        inventory: HashMap::new(),
+        inventory_capacity: 5,
+        collected_science_positions: Vec::new(),
+        robots: Vec::new(),
+        robot_type: RobotType::Explorator,
+      });
+    }
+
     for i in 0..num_collectors {
       robots.push(Robot {
         x: if i == 0 { 8 } else { 7 },
@@ -29,18 +41,6 @@ impl GameState {
         collected_science_positions: Vec::new(),
         robots: Vec::new(),
         robot_type: RobotType::Collector,
-      });
-    }
-
-    for i in 0..num_explorators {
-      robots.push(Robot {
-        x: 7,
-        y: 4,
-        inventory: HashMap::new(),
-        inventory_capacity: 5,
-        collected_science_positions: Vec::new(),
-        robots: Vec::new(),
-        robot_type: RobotType::Explorator,
       });
     }
 
