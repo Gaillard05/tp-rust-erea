@@ -1,6 +1,7 @@
 use super::cell::Cell;
 use super::zone::Zone;
 use crate::robot::robot::Robot;
+use crate::robot::robot::RobotType;
 use crate::station::station::Station;
 use crate::utils::noise::generate_noise;
 use colored::*;
@@ -144,16 +145,24 @@ impl Map {
     self.current_turn += 1;
   }
 
-  pub fn print(&self, robot: &Robot, station: &Station, resources_revealed: bool) {
+  pub fn print_map(&self, robots: &[Robot], station: &Station, resources_revealed: bool) {
     for (y, row) in self.grid.iter().enumerate() {
       for (x, cell) in row.iter().enumerate() {
-        if x == robot.x && y == robot.y {
-          print!("{}", "🤖".green().bold());
+        // Vérifie si un robot est sur cette case
+        if let Some((_index, robot)) = robots
+          .iter()
+          .enumerate()
+          .find(|(_, r)| r.x == x && r.y == y)
+        {
+          let symbol = match robot.robot_type {
+            RobotType::Explorator => "👽",
+            _ => "🤖",
+          };
+          print!("{}", symbol);
         } else if x == station.x && y == station.y {
-          print!("{}", "🏭".yellow().bold());
+          print!("{}", "🏭");
         } else {
           let is_accessible = self.is_resource_accessible(x, y);
-
           let symbol = match cell {
             Cell::Wall | Cell::Obstacle => "██".bright_black(),
             Cell::Empty => "  ".white(),
@@ -179,6 +188,7 @@ impl Map {
       println!();
     }
   }
+
   pub fn update_zone_resource_counts(&mut self) {
     for zone in &mut self.zones {
       let mut minerals = 0;
